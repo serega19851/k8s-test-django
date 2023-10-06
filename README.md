@@ -73,6 +73,7 @@ minikube service django-service --url
 ```
 
 Покажет адресс для браузера `http://хост:30777`.Хост надо добавить в фаил `configmap.yaml` в переменную ALLOWED_HOSTS
+
 Повторите команды
 
 ```
