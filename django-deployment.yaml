@@ -31,7 +31,7 @@ kind: Service
 metadata:
   name: django-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: django-web
   ports:
@@ -39,4 +39,3 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 30777

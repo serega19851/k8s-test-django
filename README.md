@@ -50,12 +50,28 @@ ALLOWED_HOSTS=127.0.0.1,localhos
 minikube start --vm-driver=docker --cpus=3 --memory=4gb --disk-size=10gb
 ```
 
+Настройте Ingress:
+
+- Установите
+
+```shell
+kubectl apply -f https://projectcontour.io/quickstart/contour.yaml
+```
+
+- В файле `django-ingress.yml` Меняем `host` на свой
+- Пропишите на своей машине в `/etc/hosts` (для linux) домен `star-burger.test`, сопоставить с IP виртуальной машины
+  узнать ip c помощью команды:
+
+```shell
+- minikube ip
+```
+
 Заполните файл `configmap.yaml`.
 
 ```
 SECRET_KEY: "django-insecure-0if40nf4nf93n4"
 DEBUG: "False"
-ALLOWED_HOSTS: "127.0.0.1,localhos"
+ALLOWED_HOSTS: "127.0.0.1,localhos,star-burger.test"
 DATABASE_URL: "postgres://test_k8s:OwOtBep9Frut@Your local machine IP address:5432/test_k8s"
 ```
 
@@ -64,21 +80,7 @@ DATABASE_URL: "postgres://test_k8s:OwOtBep9Frut@Your local machine IP address:54
 ```
 kubectl apply -f configmap.yaml
 kubectl apply -f django-deployment.yaml
+kubectl apply -f django-ingress.yaml
 ```
 
-Теперь запустите команду.
-
-```
-minikube service django-service --url
-```
-
-Покажет адресс для браузера `http://хост:30777`.Хост надо добавить в фаил `configmap.yaml` в переменную ALLOWED_HOSTS
-
-Повторите команды
-
-```
-kubectl apply -f configmap.yaml
-kubectl apply -f django-deployment.yaml
-```
-
-Теперь переходите по адресу.
+Теперь переходите по адресу `star-burger.test`.
