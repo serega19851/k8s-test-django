@@ -8,6 +8,8 @@ spec:
   schedule: "1 * * * *"
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 40
+      ttlSecondsAfterFinished: 50
       template:
         metadata:
           labels:

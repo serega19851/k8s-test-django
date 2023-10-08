@@ -81,6 +81,52 @@ DATABASE_URL: "postgres://test_k8s:OwOtBep9Frut@Your local machine IP address:54
 kubectl apply -f configmap.yaml
 kubectl apply -f django-deployment.yaml
 kubectl apply -f django-ingress.yaml
+django-clearsessions.yaml
+django-migrate.yaml
 ```
 
 Теперь переходите по адресу `star-burger.test`.
+
+Подключения PostgreSQL внутри кластера.
+
+Установить [Helm](https://helm.sh/)
+
+```shell
+sudo snap install helm --classic
+```
+
+Установить PostgreSQL (не забудьте вставить ваш пароль от админ-пользователя(OwOtBep9Frut с configmap.yaml ) БД в конце команды)
+
+```shell
+helm install test-db oci://registry-1.docker.io/bitnamicharts/postgresql --set auth.postgresPassword=<put-your-admin-password-here>
+```
+
+Сделать экспорт пароля от админ-пользователя БД в переменную окружения:
+
+```shell
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace default test-db-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+```
+
+Создать `pod` с утилитой `psql` и выполнить в ней команду подключения к БД (после запуска команды дождитесь загрузки и появления `postgres=# `):
+
+```shell
+kubectl run test-db-postgresql-client --rm --tty -i --restart='Never' --namespace default --image docker.io/bitnami/postgresql:15.3.0-debian-11-r7 --env="PGPASSWORD=$POSTGRES_PASSWORD" --command -- psql --host test-db-postgresql -U postgres -d postgres -p 5432
+```
+
+Создать пользователя БД (и пароль) для подключения приложения:
+
+```shell
+CREATE ROLE <username> WITH LOGIN ENCRYPTED PASSWORD '<put-your-password-here>';
+```
+
+Создать базу для работы приложения, владельцем которой будет выбранный пользователь:
+
+```shell
+CREATE DATABASE <database-name> OWNER <username>;
+```
+
+В результате возможно сформировать `DATABASE_URL` следующего вида:
+
+```yaml
+DATABASE_URL: postgres://test_k8s:OwOtBep9Frut@test-db-postgresql:5432/test_k8s
+```
