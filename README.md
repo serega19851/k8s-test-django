@@ -130,3 +130,33 @@ CREATE DATABASE <database-name> OWNER <username>;
 ```yaml
 DATABASE_URL: postgres://test_k8s:OwOtBep9Frut@test-db-postgresql:5432/test_k8s
 ```
+
+## Как запустить prod-версию
+
+В данном примере кластер и база данных находятся в Yandex cloud.
+
+[Cсылка на описание выделенных ресурсов облачной инфраструктуры с инструкциями как до них добраться](https://sirius-env-registry.website.yandexcloud.net/edu-naughty-pike.html)
+
+Подключиться к кластеру (например через [Lens](https://k8slens.dev/) или [Yandex cloud](https://cloud.yandex.ru/docs/managed-kubernetes/operations/connect/))
+
+Подключится к базе данных [Yandex cloud](https://cloud.yandex.ru/docs/managed-postgresql/operations/connect)
+
+Заполните файл `configmap.yaml`, пример:
+
+```yaml
+SECRET_KEY: "django-insecure-0if40nf4nf93n4"
+DEBUG: "False"
+ALLOWED_HOSTS: "127.0.0.1,localhos,star-burger.test"
+DATABASE_URL: "postgres://test_k8s:OwOtBep9Frut@Your machine IP address:5432/test_k8s"
+```
+
+Теперь запустим все `yaml-файлы` по очереди:
+
+```shell
+kubectl apply -f configmap.yaml
+kubectl apply -f django-deployment.yaml
+django-migrate.yaml
+django-clearsessions.yaml
+```
+
+Можно переходить на [сайт](https://edu-naughty-pike.sirius-k8s.dvmn.org/)
